@@ -1,4 +1,4 @@
-package org.jlab.service.ltcc.viewer;
+package org.jlab.rec.ltcc.viewer;
 
 import org.jlab.io.base.DataEvent;
 import org.jlab.io.base.DataSource;
@@ -11,8 +11,8 @@ import org.jlab.groot.graphics.EmbeddedCanvasTabbed;
 import org.jlab.groot.base.GStyle;
 import org.jlab.groot.group.DataGroup;
 import org.jlab.groot.data.H1F;
-import org.jlab.service.ltcc.LTCCCluster;
-import org.jlab.service.ltcc.LTCCHit;
+import org.jlab.rec.ltcc.LTCCCluster;
+import org.jlab.rec.ltcc.LTCCHit;
 
 
 

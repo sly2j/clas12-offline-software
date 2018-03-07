@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jlab.service.ltcc;
+package org.jlab.rec.ltcc;
 
 import org.jMath.Vector.threeVec;
 

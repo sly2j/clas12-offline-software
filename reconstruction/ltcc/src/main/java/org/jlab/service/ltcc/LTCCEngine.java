@@ -5,6 +5,11 @@ import org.jlab.io.base.DataEvent;
 import java.util.List;
 import java.util.Arrays;
 
+import org.jlab.rec.ltcc.LTCCHit;
+import org.jlab.rec.ltcc.LTCCClusterFinder;
+import org.jlab.rec.ltcc.LTCCCluster;
+
+
 /**
  * LTCC Reconstruction Engine.
  *

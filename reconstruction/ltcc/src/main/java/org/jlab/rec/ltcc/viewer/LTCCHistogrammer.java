@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jlab.service.ltcc.viewer;
+package org.jlab.rec.ltcc.viewer;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.function.Function;

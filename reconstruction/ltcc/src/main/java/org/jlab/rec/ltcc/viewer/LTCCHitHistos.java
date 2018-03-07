@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jlab.service.ltcc.viewer;
-import org.jlab.service.ltcc.viewer.LTCCHistogrammer;
+package org.jlab.rec.ltcc.viewer;
+import org.jlab.rec.ltcc.viewer.LTCCHistogrammer;
 import org.jlab.groot.data.H1F;
-import org.jlab.service.ltcc.LTCCHit;
+import org.jlab.rec.ltcc.LTCCHit;
 
 
 /**

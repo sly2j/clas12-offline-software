@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jlab.service.ltcc.viewer;
+package org.jlab.rec.ltcc.viewer;
 
 import org.jlab.groot.data.H1F;
-import org.jlab.service.ltcc.LTCCCluster;
+import org.jlab.rec.ltcc.LTCCCluster;
 
 
 /**
