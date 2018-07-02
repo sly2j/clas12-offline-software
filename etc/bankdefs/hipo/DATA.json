@@ -250,12 +250,12 @@
     "info": "digitized bank LTCC",
     "items": [
        {"name":"sector",    "id":1, "type":"int8",  "info":"sector of LTCC"},
-       {"name":"layer",     "id":2, "type":"int8",  "info":"half sector LTCC (1 or 2)"},
-       {"name":"component", "id":3, "type":"int16", "info":"ring of LTCC (1,2,3,4)"},
-       {"name":"order",     "id":4, "type":"int8",  "info":"order of (0 - ADCL , 1 - ADCR)"},       
-       {"name":"ADC",       "id":5, "type":"int32", "info":"ADC integral from fit"},
-       {"name":"time",      "id":6, "type":"float", "info":"time from fitting the pulse"},
-       {"name":"ped",       "id":7, "type":"int16", "info":"pedestal from pulse"}
+       {"name":"layer",     "id":2, "type":"int8",  "info":"Currently unused (might store LTCC side in future)"},
+       {"name":"component", "id":3, "type":"int16", "info":"LTCC segment (1 to 18)"},
+       {"name":"order",     "id":4, "type":"int8",  "info":"LTCC side (left: 0, right: 1)"},       
+       {"name":"ADC",       "id":5, "type":"int32", "info":"ADC integral from FADC"},
+       {"name":"time",      "id":6, "type":"float", "info":"Hit time from FADC"},
+       {"name":"ped",       "id":7, "type":"int16", "info":"Pedestal from FADC"}
     ]
   },
   {
@@ -264,9 +264,9 @@
     "info": "digitized bank LTCC TDC",
     "items": [
        {"name":"sector",    "id":1, "type":"int8",  "info":"sector of LTCC"},
-       {"name":"layer",     "id":2, "type":"int8",  "info":"half sector LTCC (1 or 2)"},
-       {"name":"component", "id":3, "type":"int16", "info":"ring of LTCC (1,2,3,4)"},
-       {"name":"order",     "id":4, "type":"int8",  "info":"order of (0 - ADCL , 1 - ADCR)"},       
+       {"name":"layer",     "id":2, "type":"int8",  "info":"Currently unused (might store LTCC side in future)"},
+       {"name":"component", "id":3, "type":"int16", "info":"LTCC segment (1 to 18)"},
+       {"name":"order",     "id":4, "type":"int8",  "info":"LTCC side (left: 0, right: 1)"},       
        {"name":"TDC",       "id":5, "type":"int32", "info":"TDC value (25 ps per channel)"}
     ]
   }, 
