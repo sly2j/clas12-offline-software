@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.jlab.service.ec;
 
 import java.util.ArrayList;
@@ -17,6 +12,7 @@ import org.jlab.geom.prim.Point3D;
  *
  * @author gavalian
  */
+
 public class ECPeak {
     
     private DetectorDescriptor  desc       = new DetectorDescriptor(DetectorType.ECAL);
@@ -24,7 +20,10 @@ public class ECPeak {
     private Line3D              peakLine   = new Line3D();
     private int                 indexMaxStrip = -1;
     private int                 peakOrder     = -1;
-
+    private double              peakDistanceEdge = 0.0;
+    private double              peakMoment       = 0.0;
+    private double              peakMoment2      = 0.0;
+    private double              peakMoment3      = 0.0;
     //private int                 peakID        = -1;
     
     public ECPeak(ECStrip strip){
@@ -35,25 +34,16 @@ public class ECPeak {
         this.indexMaxStrip = 0;
     }
     
-    public Line3D  getLine(){
-        return this.peakLine;
-    }
+    public Line3D  getLine() {return this.peakLine;}
     
-    public void setOrder(int order){ this.peakOrder = order; }
+    public void setOrder(int order) { this.peakOrder = order;}
     
-    public int  getOrder(){ return this.peakOrder;}
+    public int  getOrder() { return this.peakOrder;}
     
     public void setPeakId(int id){
         for(ECStrip strip : this.peakStrips){
             strip.setPeakId(id);
         }
-    }
-    
-    public double getTime(){
-        if(this.indexMaxStrip>0&&this.indexMaxStrip<this.peakStrips.size()-1){
-            return this.peakStrips.get(indexMaxStrip).getTime();
-        }
-            return 0.0;
     }
     
     public double getEnergy(){
@@ -71,10 +61,27 @@ public class ECPeak {
         }
         return energy;
     }
-    
-    
+        
+    public double getTime(){
+        if(this.indexMaxStrip>0 && this.indexMaxStrip < this.peakStrips.size()-1){
+            return this.peakStrips.get(indexMaxStrip).getTime();
+        }
+            return 0.0;
+    }
+
+    public double getTime(Point3D point) {
+		if (this.indexMaxStrip >= 0 && this.indexMaxStrip < this.peakStrips.size()) {
+			return this.peakStrips.get(indexMaxStrip).getTime(point);
+		}
+		return 0.0;
+	}
+	
     public DetectorDescriptor getDescriptor(){
         return this.desc;
+    }
+    
+    public ECStrip getMaxECStrip() {
+    	    return this.peakStrips.get(this.indexMaxStrip);
     }
     
     public int      getMaxStrip(){
@@ -104,8 +111,14 @@ public class ECPeak {
     }
     
     public void redoPeakLine(){
+        
         Point3D pointOrigin = new Point3D(0.0,0.0,0.0);
         Point3D pointEnd    = new Point3D(0.0,0.0,0.0);
+        this.peakDistanceEdge = 0.0;
+        this.peakMoment       = 0.0;
+        this.peakMoment2      = 0.0;
+        this.peakMoment3      = 0.0;
+        
         double logSumm = 0.0;
         for(int i = 0; i < this.peakStrips.size(); i++){
             Line3D line = this.peakStrips.get(i).getLine();
@@ -113,7 +126,11 @@ public class ECPeak {
             double energy = this.peakStrips.get(i).getEnergy();
 //            double     le = Math.log(energy);
             double     le = energy;
-                       
+            
+            this.peakDistanceEdge += 
+                    //peakStrips.get(i).getDistanceEdge() + 
+                    peakStrips.get(i).getDistanceEdge()*le;
+            
             pointOrigin.setX(pointOrigin.x()+line.origin().x()*le);
             pointOrigin.setY(pointOrigin.y()+line.origin().y()*le);
             pointOrigin.setZ(pointOrigin.z()+line.origin().z()*le);
@@ -125,6 +142,7 @@ public class ECPeak {
             logSumm += le;
         }
         
+        this.peakDistanceEdge = this.peakDistanceEdge/logSumm;
         //System.out.println(" LOG SUMM = " + logSumm);
         
         this.peakLine.set(
@@ -135,6 +153,40 @@ public class ECPeak {
                 pointEnd.y()/logSumm,
                 pointEnd.z()/logSumm
         );
+        // Calculating Moments of the shower peak
+        for(int i = 0; i < this.peakStrips.size(); i++){            
+            double stripDistance = this.peakStrips.get(i).getDistanceEdge();
+            double dist = this.peakDistanceEdge - stripDistance;
+            double energy = this.peakStrips.get(i).getEnergy();
+            this.peakMoment  += Math.abs(dist)*energy;
+            this.peakMoment2 += dist*dist*energy;
+            this.peakMoment3 += energy*dist*dist*dist;            
+        }
+        
+        this.peakMoment = this.peakMoment/logSumm;
+        if(this.peakMoment2<0.0000000001){
+            this.peakMoment2 = 4.5/12.0;
+        } else {
+            this.peakMoment2 = this.peakMoment2/logSumm;        
+        }
+        double sigma3    = Math.sqrt(this.peakMoment2);
+        this.peakMoment3 = this.peakMoment3/logSumm/(sigma3*sigma3*sigma3);
+    }
+    
+    public double getDistanceEdge(){
+        return this.peakDistanceEdge;
+    }
+    
+    public double getMoment(){
+        return this.peakMoment;
+    }
+    
+    public double getMoment2(){
+        return this.peakMoment2;
+    }
+    
+    public double getMoment3(){
+        return this.peakMoment3;
     }
     
     public int getMultiplicity(){

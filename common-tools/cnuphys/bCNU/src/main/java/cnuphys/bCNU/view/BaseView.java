@@ -6,6 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Frame;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -77,6 +78,9 @@ public class BaseView extends JInternalFrame implements FocusListener {
 	
 	//optional scrollpane
 	private JScrollPane _scrollPane;
+	
+    //starting location
+	private Point _startingLocation = new Point();
 
 	/**
 	 * Constructor
@@ -223,6 +227,8 @@ public class BaseView extends JInternalFrame implements FocusListener {
 				setLocation(left, top);
 			}
 		}
+		
+		_startingLocation.setLocation(left, top);
 
 		// add to the desktop
 		if (_desktop != null) {
@@ -272,6 +278,21 @@ public class BaseView extends JInternalFrame implements FocusListener {
 			}
 		};
 		addComponentListener(ca);
+	}
+	
+	/**
+	 * Get the starting upper-left of the view
+	 * @return the starting upper-left of the view
+	 */
+	public Point getStartingLocation() {
+		return _startingLocation;
+	}
+	
+	@Override
+	public Insets getInsets() {
+		Insets def = super.getInsets();
+		return new Insets(def.top, def.left, 2,
+				def.right);
 	}
 	
 	/**

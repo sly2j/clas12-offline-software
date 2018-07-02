@@ -1,8 +1,17 @@
 ---
+
+sudo: required
+
 language: java
 
 jdk:
 - oraclejdk8
+
+# this affects which java version is used:
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
 
 before_install:
   - ls -lthra
@@ -10,6 +19,7 @@ before_install:
   - echo "starting build..."
 
 install:
+  - java -version
   - ./build-coatjava.sh
 
 script:
@@ -22,8 +32,15 @@ script:
   - echo "finished unit tests"
   - cd validation/advanced-tests/
   - ./run-advanced-tests.sh
+  - ./run-eb-tests.sh -100 electronproton
+  - ./run-eb-tests.sh -100 electrongamma
+  - ./run-eb-tests.sh -100 electronprotonC
   - cd -
   - echo "finished advanced tests"
+  - mvn cobertura:cobertura &> /dev/null # for codecov
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   emails: false

@@ -4,19 +4,23 @@ import java.util.ArrayList;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 
+import org.jlab.rec.eb.EBCCDBConstants;
+import org.jlab.rec.eb.EBCCDBEnum;
+
 /**
  *
  * @author devita
  */
 public class EBRadioFrequency {
- 
+
+    private EBCCDBConstants ccdb;
     private int debugMode = 0;
     
     private ArrayList<rfSignal> rfSignals = new ArrayList<rfSignal>();
     private double rfTime = -100;
     
-    
-    public EBRadioFrequency() {
+    public EBRadioFrequency(EBCCDBConstants ccdb) {
+        this.ccdb=ccdb;
     }
 
     
@@ -26,9 +30,21 @@ public class EBRadioFrequency {
     }
     
     public void processEvent(DataEvent event) {
+        final int rfId=ccdb.getInteger(EBCCDBEnum.RF_ID);
+        // correct for CAEN TDC jitter
+        double triggerPhase = 0;
+        if(event.hasBank("RUN::config")) {
+            DataBank bank = event.getBank("RUN::config");
+            double period = ccdb.getDouble(EBCCDBEnum.RF_JITTER_PERIOD);;
+            int    phase  = ccdb.getInteger(EBCCDBEnum.RF_JITTER_PHASE);
+            int    cycles = ccdb.getInteger(EBCCDBEnum.RF_JITTER_CYCLES);
+            long   timeStamp = bank.getLong("timestamp", 0);
+            if(cycles>0 && timeStamp!=-1) triggerPhase=period*((timeStamp+phase)%cycles);
+//            System.out.println(period + " " + phase + " " + cycles + " " + timeStamp + " " + triggerPhase);
+        
+        }
         // if RUN::rf bank does not exist but tdc bnk exist, reconstruct RF signals from TDC hits and save to bank
         if(event.hasBank("RF::tdc") && !event.hasBank("RUN::rf")) {
-            double time = 0;
             int    hits = 0;
             DataBank bank = event.getBank("RF::tdc");
             int rows = bank.rows();
@@ -44,7 +60,7 @@ public class EBRadioFrequency {
                         this.rfSignals.get(ind).add(TDC);
                     }
                     else {
-                        rfSignal newSignal = new rfSignal(comp);
+                        rfSignal newSignal = new rfSignal(comp, triggerPhase);
                         newSignal.add(TDC);
                         this.rfSignals.add(newSignal);
                     }
@@ -58,7 +74,7 @@ public class EBRadioFrequency {
                 if(debugMode>0) this.rfSignals.get(i).print();
             }
             event.appendBank(bankOut);
-            int index = this.hasSignal(EBConstants.RF_ID);
+            int index = this.hasSignal(rfId);
             if(index>=0) rfTime= this.rfSignals.get(index).getTime();
             if(debugMode>0) bankOut.show();
             
@@ -67,7 +83,7 @@ public class EBRadioFrequency {
             DataBank bank = event.getBank("RUN::rf");
             int rows = bank.rows();
             for(int i = 0; i < rows; i++){
-                if(bank.getShort("id", i)==EBConstants.RF_ID) rfTime=bank.getFloat("time", i);
+                if(bank.getShort("id", i)==rfId) rfTime=bank.getFloat("time", i);
             }
         }
         
@@ -84,21 +100,27 @@ public class EBRadioFrequency {
     
     private class rfSignal {
         private int _id;
+        private double _jitter;
         private ArrayList<Integer> _tdc = new ArrayList<Integer>();
         private ArrayList<Double> _time = new ArrayList<Double>();
 
-        public rfSignal(int id) {
+        public rfSignal(int id, double jitter) {
             this.setId(id);
+            this.setJitter(jitter);
         }
 
         public boolean add(int tdc) {
+            final double rfTdc2Time = ccdb.getDouble(EBCCDBEnum.RF_TDC2TIME);
+            final int rfCycles = ccdb.getInteger(EBCCDBEnum.RF_CYCLES);
+            final double rfOffset = ccdb.getDouble(EBCCDBEnum.RF_OFFSET);
+            final double rfBucketLength = ccdb.getDouble(EBCCDBEnum.RF_BUCKET_LENGTH); 
             boolean skip = false;
-            double time = (tdc*EBConstants.RF_TDC2TIME) % (EBConstants.RF_CYCLES*EBConstants.RF_BUCKET_LENGTH);
+            double time = (tdc*rfTdc2Time) % (rfCycles*rfBucketLength) - this.getJitter();
 //            time = (tdc % 6840) *EBConstants.RF_TDC2TIME;
             // check if new TDC value compared to previous one is consistent with 80*2.004 ns interval
             if(this._tdc.size()>0) {               
                 int deltaTDC = tdc - this._tdc.get(this._tdc.size()-1);
-                if(deltaTDC>((double) (EBConstants.RF_CYCLES+1)*EBConstants.RF_BUCKET_LENGTH)/EBConstants.RF_TDC2TIME) { // allow for an extra 2.004 ns
+                if(deltaTDC>((double) (rfCycles+1)*rfBucketLength)/rfTdc2Time) { // allow for an extra 2.004 ns
 //                    System.out.println("Found missing hits in RF sequence for signal ID " + this._id + ", TDC = " + tdc 
 //                            + ", DeltaTDC = " + deltaTDC  + "(" + deltaTDC*EBConstants.RF_TDC2TIME+ ")");
                     skip = true;
@@ -115,6 +137,14 @@ public class EBRadioFrequency {
 
         public void setId(int _id) {
             this._id = _id;
+        }
+
+        public double getJitter() {
+            return _jitter;
+        }
+
+        public void setJitter(double _jitter) {
+            this._jitter = _jitter;
         }
 
         public double getTime() {

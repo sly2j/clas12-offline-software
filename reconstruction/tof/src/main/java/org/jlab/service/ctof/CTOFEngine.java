@@ -55,6 +55,9 @@ public class CTOFEngine extends ReconstructionEngine {
                     "/calibration/ctof/time_offsets",
                     "/calibration/ctof/tdc_conv",
                     "/calibration/ctof/status",
+                    "/calibration/ctof/gain_balance",
+                    "/calibration/ctof/time_jitter",
+                    "/calibration/ctof/fadc_offset"
                 };
         
         requireConstants(Arrays.asList(ftofTables));
@@ -70,15 +73,24 @@ public class CTOFEngine extends ReconstructionEngine {
     public boolean processDataEvent(DataEvent event) {
         //setRunConditionsParameters( event) ;
         if(event.hasBank("RUN::config")==false ) {
-		System.err.println("RUN CONDITIONS NOT READ!");
-		return true;
-	}
-		
+            System.err.println("RUN CONDITIONS NOT READ!");
+            return true;
+        }
+
         DataBank bank = event.getBank("RUN::config");
 		
         // Load the constants
         //-------------------
-        int newRun = bank.getInt("run", 0);
+        final int newRun = bank.getInt("run", 0);
+        long timeStamp = bank.getLong("timestamp", 0);
+        if (newRun<=0) {
+            System.err.println("CTOFEngine:  got run <= 0 in RUN::config, skipping event.");
+            return false;
+        }
+        if (timeStamp==-1) {
+            System.err.println("FTOFEngine:  got 0 timestamp, skipping event");
+            return false;
+        }
 
         if (geometry == null) {
             System.err.println(" CTOF Geometry not loaded !!!");
@@ -95,12 +107,15 @@ public class CTOFEngine extends ReconstructionEngine {
         List<Cluster> clusters = new ArrayList<Cluster>(); // all clusters
         // read in the hits for CTOF
         HitReader hitRead = new HitReader();
-        hitRead.fetch_Hits(event, geometry, trkLines, paths, ids, 
+        hitRead.fetch_Hits(event, timeStamp, geometry, trkLines, paths, ids, 
             this.getConstantsManager().getConstants(newRun, "/calibration/ctof/attenuation"),
             this.getConstantsManager().getConstants(newRun, "/calibration/ctof/effective_velocity"),
             this.getConstantsManager().getConstants(newRun, "/calibration/ctof/time_offsets"),
             this.getConstantsManager().getConstants(newRun, "/calibration/ctof/tdc_conv"),
-            this.getConstantsManager().getConstants(newRun, "/calibration/ctof/status"));
+            this.getConstantsManager().getConstants(newRun, "/calibration/ctof/status"),
+            this.getConstantsManager().getConstants(newRun, "/calibration/ctof/gain_balance"),
+            this.getConstantsManager().getConstants(newRun, "/calibration/ctof/time_jitter"),
+            this.getConstantsManager().getConstants(newRun, "/calibration/ctof/fadc_offset"));
 
         // 1) get the hits
         List<Hit> CTOFHits = hitRead.get_CTOFHits();
@@ -160,6 +175,13 @@ public class CTOFEngine extends ReconstructionEngine {
         }
         //rbc.appendCTOFBanks( event, hits, clusters);
         rbc.appendCTOFBanks(event, hits, null); // json file needs clusters...
+//        if(event.hasBank("CTOF::adc")) {
+//            if(event.hasBank("CTOF::adc")) event.getBank("CTOF::adc").show();
+//            if(event.hasBank("CTOF::tdc")) event.getBank("CTOF::tdc").show();
+//            if(event.hasBank("CTOF::rawhits")) event.getBank("CTOF::rawhits").show();
+//            if(event.hasBank("CTOF::hits")) event.getBank("CTOF::hits").show();
+//            if(event.hasBank("CVTRec::Tracks")) event.getBank("CVTRec::Tracks").show();
+//        }
         return true;
 
     }

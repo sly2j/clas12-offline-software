@@ -10,9 +10,6 @@ import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
 import java.util.List;
-import java.util.Vector;
-
-import org.jlab.geom.DetectorHit;
 import org.jlab.geom.prim.Line3D;
 import org.jlab.geom.prim.Point3D;
 
@@ -28,7 +25,6 @@ import cnuphys.bCNU.util.VectorSupport;
 import cnuphys.bCNU.util.X11Colors;
 import cnuphys.ced.cedview.CedView;
 import cnuphys.ced.cedview.projecteddc.ISuperLayer;
-import cnuphys.ced.clasio.ClasIoEventManager;
 import cnuphys.ced.event.AccumulationManager;
 import cnuphys.ced.event.data.DC;
 import cnuphys.ced.event.data.DCTdcHit;
@@ -38,8 +34,6 @@ import cnuphys.ced.event.data.HBSegments;
 import cnuphys.ced.event.data.Segment;
 import cnuphys.ced.event.data.SegmentList;
 import cnuphys.ced.event.data.TBSegments;
-import cnuphys.ced.fastmc.FastMCManager;
-import cnuphys.ced.fastmc.ParticleHits;
 import cnuphys.ced.frame.CedColors;
 import cnuphys.ced.geometry.DCGeometry;
 import cnuphys.ced.geometry.GeoConstants;
@@ -282,25 +276,15 @@ public class SuperLayerDrawing {
 	private void drawAccumulatedHits(Graphics g, IContainer container, boolean reallyClose) {
 
 		int dcAccumulatedData[][][][] = AccumulationManager.getInstance().getAccumulatedDCData();
-		int maxHit = AccumulationManager.getInstance().getMaxDCCount();
-		if (maxHit < 1) {
-			return;
-		}
-
 		int sect0 = _iSupl.sector() - 1;
 		int supl0 = _iSupl.superlayer() - 1;
+		int medianHit = AccumulationManager.getInstance().getMedianDCCount(supl0);
 
 		for (int lay0 = 0; lay0 < 6; lay0++) {
 			for (int wire0 = 0; wire0 < 112; wire0++) {
 
 				int hit = dcAccumulatedData[sect0][supl0][lay0][wire0];
-				double fract;
-				if (_view.isSimpleAccumulatedMode()) {
-					fract = ((double) hit) / maxHit;
-				} else {
-					fract = Math.log(hit + 1.) / Math.log(maxHit + 1.);
-				}
-
+				double fract = _view.getMedianSetting()*(((double) hit) / (1 + medianHit));
 				Color color = AccumulationManager.getInstance().getColor(fract);
 
 				g.setColor(color);
@@ -314,40 +298,6 @@ public class SuperLayerDrawing {
 		} //layer loop
 
 	}
-	
-	/**
-	 * Draw hits (and other data) when we are in single hit mode
-	 * 
-	 * @param g
-	 *            The graphics object
-	 * @param container
-	 *            the drawing container
-	 */
-	private void drawFastMCSingleModeHits(Graphics g, IContainer container, boolean reallyClose) {
-		if (FastMCManager.getInstance().isStreaming()) {
-			return;
-		}
-
-		Vector<ParticleHits> phits = FastMCManager.getInstance().getFastMCHits();
-		if ((phits == null) || phits.isEmpty()) {
-			return;
-		}
-		
-		for (ParticleHits hits : phits) {
-			List<DetectorHit> dchits = hits.getDCHits();
-			if (dchits != null) {
-				for (DetectorHit hit : dchits) {
-					int sect1 = hit.getSectorId() + 1;
-					int supl1 = hit.getSuperlayerId() + 1;
-					if ((sect1 == _iSupl.sector()) && (supl1 == _iSupl.superlayer())) {
-						int lay1 = hit.getLayerId() + 1;
-						int wire1 = hit.getComponentId() + 1;
-						drawDCHit(g, container, lay1, wire1, false, hits.getLundId().getId());
-					}
-				}
-			}
-		}
-	}
 
 	/**
 	 * Draw hits (and other data) when we are in single hit mode
@@ -358,11 +308,6 @@ public class SuperLayerDrawing {
 	 *            the drawing container
 	 */
 	private void drawSingleModeHits(Graphics g, IContainer container, boolean reallyClose) {
-
-		if (ClasIoEventManager.getInstance().isSourceFastMC()) {
-			drawFastMCSingleModeHits(g, container, reallyClose);
-			return;
-		}
 		
 		DCTdcHitList hits = DC.getInstance().getTDCHits();
 		if ((hits != null) && !hits.isEmpty()) {
@@ -1066,6 +1011,12 @@ public class SuperLayerDrawing {
 				if ((layer > 0) && (wire > 0)) {
 				double wireRate = AccumulationManager.getInstance().getAccumulatedWireHitPercentage(_iSupl.sector() - 1, _iSupl.superlayer() - 1, layer-1, wire-1);
 				double avgOccupancy = AccumulationManager.getInstance().getAverageDCOccupancy(_iSupl.sector() - 1, _iSupl.superlayer() - 1);
+				
+				int dcAccumulatedData[][][][] = AccumulationManager.getInstance()
+						.getAccumulatedDCData();
+
+				int hitCount = dcAccumulatedData[_iSupl.sector() - 1][_iSupl.superlayer()-1][layer-1][wire-1];
+
 
 				feedbackStrings.add(AccumulationManager.accumulationFBColor + 
 						"accumulated event count: " + AccumulationManager.getInstance().getAccumulationEventCount());
@@ -1075,6 +1026,11 @@ public class SuperLayerDrawing {
 				feedbackStrings.add(AccumulationManager.accumulationFBColor + 
 						"hit rate layer: " + layer + ", wire: " + wire + " is "
 						+ DoubleFormat.doubleFormat(wireRate, 3) + "%");
+				
+				feedbackStrings.add(AccumulationManager.accumulationFBColor + 
+						"hit count layer: " + layer + ", wire: " + wire + " is "
+						+ hitCount);
+
 				}
 
 			}

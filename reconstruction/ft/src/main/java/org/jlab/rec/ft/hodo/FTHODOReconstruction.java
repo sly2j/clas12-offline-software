@@ -3,6 +3,7 @@ package org.jlab.rec.ft.hodo;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.jlab.detector.calib.utils.ConstantsManager;
 import org.jlab.io.base.DataBank;
 import org.jlab.io.base.DataEvent;
 
@@ -19,8 +20,12 @@ public class FTHODOReconstruction {
     public FTHODOReconstruction() {
     }
 	
-    public List<FTHODOHit> initFTHODO(DataEvent event, IndexedTable charge2Energy, IndexedTable timeOffsets, IndexedTable geometry) {
+    public List<FTHODOHit> initFTHODO(DataEvent event, ConstantsManager manager, int run) {
 
+        IndexedTable charge2Energy = manager.getConstants(run, "/calibration/ft/fthodo/charge_to_energy");
+        IndexedTable timeOffsets   = manager.getConstants(run, "/calibration/ft/fthodo/time_offsets");
+        IndexedTable geometry      = manager.getConstants(run, "/geometry/ft/fthodo");
+        
         if(debugMode>=1) System.out.println("\nAnalyzing new event");
         List<FTHODOHit> allhits = null;
         
@@ -114,9 +119,9 @@ public class FTHODOReconstruction {
                 bankHits.setByte("sector",i,(byte) hits.get(i).get_Sector());
                 bankHits.setByte("layer",i,(byte) hits.get(i).get_Layer());
                 bankHits.setShort("component",i,(short) hits.get(i).get_ID());
-                bankHits.setFloat("x",i,(float) hits.get(i).get_Dx());
-                bankHits.setFloat("y",i,(float) hits.get(i).get_Dy());
-                bankHits.setFloat("z",i,(float) hits.get(i).get_Dz());
+                bankHits.setFloat("x",i,(float) (hits.get(i).get_Dx()/10.0));
+                bankHits.setFloat("y",i,(float) (hits.get(i).get_Dy()/10.0));
+                bankHits.setFloat("z",i,(float) (hits.get(i).get_Dz()/10.0));
                 bankHits.setFloat("energy",i,(float) hits.get(i).get_Edep());
                 bankHits.setFloat("time",i,(float) hits.get(i).get_Time());
                 bankHits.setShort("hitID",i,(short) hits.get(i).get_DGTZIndex());
@@ -134,12 +139,12 @@ public class FTHODOReconstruction {
             for(int i = 0; i < clusters.size(); i++){
                             bankCluster.setShort("id", i,(short) clusters.get(i).getID());
                             bankCluster.setShort("size", i,(short) clusters.get(i).getSize());
-                            bankCluster.setFloat("x",i,(float) clusters.get(i).getX());
-                            bankCluster.setFloat("y",i,(float) clusters.get(i).getY());
-                            bankCluster.setFloat("z",i,(float) clusters.get(i).getZ());
-                            bankCluster.setFloat("widthX",i,(float) clusters.get(i).getWidthX());
-                            bankCluster.setFloat("widthY",i,(float) clusters.get(i).getWidthY());
-                            bankCluster.setFloat("radius",i,(float) clusters.get(i).getRadius());
+                            bankCluster.setFloat("x",i,(float) (clusters.get(i).getX()/10.0));
+                            bankCluster.setFloat("y",i,(float) (clusters.get(i).getY()/10.0));
+                            bankCluster.setFloat("z",i,(float) (clusters.get(i).getZ()/10.0));
+                            bankCluster.setFloat("widthX",i,(float) (clusters.get(i).getWidthX()/10.0));
+                            bankCluster.setFloat("widthY",i,(float) (clusters.get(i).getWidthY()/10.0));
+                            bankCluster.setFloat("radius",i,(float) (clusters.get(i).getRadius()/10.0));
                             bankCluster.setFloat("time",i,(float) clusters.get(i).getTime());
                             bankCluster.setFloat("energy",i,(float) clusters.get(i).getEnergy());
             }
@@ -161,8 +166,8 @@ public class FTHODOReconstruction {
                     bankhits.setInt("id",i,hits.get(i).get_ID());
                     bankhits.setInt("sector",i,hits.get(i).get_Sector());
                     bankhits.setInt("layer",i,hits.get(i).get_Layer());
-                    bankhits.setDouble("hitX",i,hits.get(i).get_Dx());
-                    bankhits.setDouble("hitY",i,hits.get(i).get_Dy());
+                    bankhits.setDouble("hitX",i,hits.get(i).get_Dx()/10.0);
+                    bankhits.setDouble("hitY",i,hits.get(i).get_Dy()/10.0);
                     bankhits.setDouble("hitEnergy",i,hits.get(i).get_Edep());
                     bankhits.setDouble("hitTime",i,hits.get(i).get_Time());
                     bankhits.setInt("hitDGTZIndex",i,hits.get(i).get_DGTZIndex());
@@ -176,10 +181,10 @@ public class FTHODOReconstruction {
                         if(debugMode>=1) clusters.get(i).showCluster();
                             bankclust.setInt("clusterID", i,clusters.get(i).getID());
                             bankclust.setInt("clusterSize", i,clusters.get(i).size());
-                            bankclust.setDouble("clusterX",i,clusters.get(i).getX());
-                            bankclust.setDouble("clusterY",i,clusters.get(i).getY());
-                            bankclust.setDouble("clusterDX",i,clusters.get(i).getWidthX());
-                            bankclust.setDouble("clusterDY",i,clusters.get(i).getWidthY());
+                            bankclust.setDouble("clusterX",i,clusters.get(i).getX()/10.0);
+                            bankclust.setDouble("clusterY",i,clusters.get(i).getY()/10.0);
+                            bankclust.setDouble("clusterDX",i,clusters.get(i).getWidthX()/10.0);
+                            bankclust.setDouble("clusterDY",i,clusters.get(i).getWidthY()/10.0);
                             bankclust.setDouble("clusterTime",i,clusters.get(i).getTime());
                             bankclust.setDouble("clusterEnergy",i,clusters.get(i).getEnergy());
                             bankclust.setDouble("clusterTheta",i,clusters.get(i).getTheta());
@@ -235,7 +240,7 @@ public class FTHODOReconstruction {
                 int adc         = bankDGTZ.getInt("ADC",row);
                 float time      = bankDGTZ.getFloat("time",row);
                 if(adc!=-1 && time!=-1){
-                    FTHODOHit hit = new FTHODOHit(row,isector,ilayer,icomponent, adc, time,charge2Energy,timeOffsets,geometry);
+                    FTHODOHit hit = new FTHODOHit(row,isector,ilayer,icomponent, adc, time, charge2Energy,timeOffsets,geometry);
 	             hits.add(hit); 
 	        }	          
             }

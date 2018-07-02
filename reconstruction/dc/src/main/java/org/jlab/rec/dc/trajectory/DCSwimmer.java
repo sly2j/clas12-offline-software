@@ -14,8 +14,6 @@ import cnuphys.rk4.RungeKuttaException;
 import cnuphys.swim.SwimTrajectory;
 import cnuphys.swim.Swimmer;
 import cnuphys.magfield.TorusMap;
-import org.jlab.detector.geant4.v2.DCGeant4Factory;
-
 import org.jlab.rec.dc.Constants;
 import org.jlab.utils.CLASResources;
 
@@ -121,14 +119,9 @@ public class DCSwimmer {
      * @param p
      * @param charge
      */
-    public void SetSwimParameters(int superlayerIdx, int layerIdx, double x0, double y0, double thx, double thy, double p, int charge, DCGeant4Factory DcDetector) {
+    public void SetSwimParameters(int superlayerIdx, int layerIdx, double x0, double y0, double z0, double thx, double thy, double p, int charge) {
         // z at a given DC plane in the tilted coordinate system
-        double z0 = 0;
-
-        if (superlayerIdx != -1 && layerIdx != -1) //z0 = GeometryLoader.dcDetector.getSector(0).getSuperlayer(superlayerIdx).getLayer(layerIdx).getPlane().point().z();
-        {
-            z0 = DcDetector.getLayerMidpoint(superlayerIdx, layerIdx).z;
-        }
+        
 
         // x,y,z in m = swimmer units
         _x0 = x0 / 100;
@@ -516,11 +509,32 @@ public class DCSwimmer {
         return new Point3D(result[0] / 10, result[1] / 10, result[2] / 10);
 
     }
-
+    private static double SOLSCALE = -1;
+    private static double TORSCALE = -1;
+    
+    public static synchronized void setSolScale(double s) {
+        SOLSCALE = s;
+    }
+    public static synchronized void setTorScale(double s) {
+        TORSCALE = s;
+    }
+    public static double getSolScale() {
+        return SOLSCALE;
+    }
+    public static double getTorScale() {
+        return TORSCALE;
+    }
+    
     public static synchronized void setMagneticFieldsScales(double SolenoidScale, double TorusScale, double shift) {
+        if (FieldsLoaded) {
+            return;
+        }
         MagneticFields.getInstance().getTorus().setScaleFactor(TorusScale);
         MagneticFields.getInstance().getSolenoid().setScaleFactor(SolenoidScale);
         MagneticFields.getInstance().setSolenoidShift(shift);
+        setSolScale(SolenoidScale);
+        setTorScale(TorusScale);
+        FieldsLoaded = true;
       //  if (rcompositeField.get(0) != null) {
        //     ((MagneticField) rcompositeField.get(0)).setScaleFactor(TorusScale);
             System.out.println("FORWARD TRACKING ***** ****** ****** THE TORUS IS BEING SCALED BY " + (TorusScale * 100) + "  %   *******  ****** **** ");

@@ -91,11 +91,14 @@ public class DetectorEvent {
         return responses;
     }
     
-    public List<CherenkovResponse>  getCherenkovResponseList(){
+    public List<DetectorResponse>  getCherenkovResponseList(){
         this.setAssociation();
-        List<CherenkovResponse> responses = new ArrayList<CherenkovResponse>();
-        for(DetectorParticle p : this.particleList){
-            for(CherenkovResponse r : p.getCherenkovResponses()){
+        List<DetectorResponse> responses = new ArrayList<DetectorResponse>();
+        for (DetectorParticle p : this.particleList){
+            for (DetectorResponse r : p.getDetectorResponses()) {
+                if (r.getDescriptor().getType() == DetectorType.HTCC ||
+                    r.getDescriptor().getType() == DetectorType.LTCC ||
+                    r.getDescriptor().getType() == DetectorType.RICH)
                 responses.add(r);
             }
         }

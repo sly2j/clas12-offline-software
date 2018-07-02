@@ -3,7 +3,6 @@ package org.jlab.rec.dc.segment;
 import java.util.ArrayList;
 import java.util.List;
 import org.jlab.detector.geant4.v2.DCGeant4Factory;
-
 import org.jlab.geom.prim.Plane3D;
 import org.jlab.geom.prim.Point3D;
 import org.jlab.geom.prim.Vector3D;
@@ -26,7 +25,19 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
      */
     private static final long serialVersionUID = -997960312423538455L;
     private FittedCluster _fittedCluster;
+    public boolean isOnTrack = false;
 
+
+    private int     _Sector;      						// sector[1...6]
+    private int     _Superlayer;    	 					// superlayer [1,...6]
+    private int     _Id;							// cluster Id
+    private double  _ResiSum;                                                   // sum of residuals for hits in segment
+    private double  _TimeSum;                                                   // sum of times for hits in segment
+    private Plane3D _fitPlane;
+    private SegmentTrajectory _Trajectory;
+    private int _Status = 1;
+    private double[] _SegmentEndPoints;
+    public int associatedCrossId = -1;
     /**
      * Construct the segment from the fitted cluster.
      *
@@ -40,9 +51,23 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
         this._Sector = fCluster.get_Sector();
         this._Superlayer = fCluster.get_Superlayer();
         this._Id = fCluster.get_Id();
-
+        this.set_Status(Status());
     }
-
+    
+    public int Status() {
+        int stat = 0;    
+        
+        int L[] = new int[6];
+        for(int l = 0; l<this.size(); l++) {
+            L[this.get(l).get_Layer()-1]++;
+        }
+        for(int l = 0; l<6; l++) {
+            if(L[l]==0 || L[l]>2)
+                stat=1;
+        }
+        return stat;
+    }
+    
     /**
      *
      * @return the fitted cluster
@@ -50,7 +75,6 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
     public FittedCluster get_fittedCluster() {
         return _fittedCluster;
     }
-
     /**
      * Sets the fitted cluster
      *
@@ -59,11 +83,6 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
     public void set_fittedCluster(FittedCluster _fittedCluster) {
         this._fittedCluster = _fittedCluster;
     }
-
-    private int     _Sector;      						// sector[1...6]
-    private int     _Superlayer;    	 					// superlayer [1,...6]
-    private int     _Id;							// cluster Id
-    private double  _ResiSum;                                                   // sum of residuals for hits in segment
 
     /**
      *
@@ -122,7 +141,7 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
      * @return region (1...3)
      */
     public int get_Region() {
-        return (int) (this._Superlayer + 1) / 2;
+        return (this._Superlayer + 1) / 2;
     }
 
     /**
@@ -164,7 +183,6 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
     public void set_TimeSum(double _TimeSum) {
         this._TimeSum = _TimeSum;
     }
-    private double  _TimeSum;                                                   // sum of times for hits in segment
     
     /**
      *
@@ -182,7 +200,7 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
         if (Math.abs(this.getAvgwire() - otherseg.getAvgwire()) < Constants.DC_RSEG_A * this.getAvgwire() + Constants.DC_RSEG_B) {
             value = true;
         }
-
+        
         return value;
     }
     
@@ -232,10 +250,6 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
         return ((double) avewire / hSize);
     }
 
-    private Plane3D _fitPlane;
-    private SegmentTrajectory _Trajectory;
-    private int _Status = 1;
-    private double[] _SegmentEndPoints;
 
     /**
      *
@@ -326,7 +340,6 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
         if (normDir.mag() > 1.e-10) {
             normDir.scale(1. / normDir.mag());
         } else {
-            System.err.println("Segment Fit Plane not calculated");
             return new Plane3D(new Point3D(0, 0, 0), new Vector3D(0, 0, 0));
         }
         Plane3D fitPlane = new Plane3D(refPoint, normDir);
@@ -334,18 +347,32 @@ public class Segment extends ArrayList<FittedHit> implements Comparable<Segment>
         return fitPlane;
     }
 
+    /**
+     * 
+     * @return segment trajectory
+     */
     public SegmentTrajectory get_Trajectory() {
         return _Trajectory;
     }
-
+    /**
+     * 
+     * @param _Trajectory segment trajectory
+     */
     public void set_Trajectory(SegmentTrajectory _Trajectory) {
         this._Trajectory = _Trajectory;
     }
-
+    
+    /**
+     * 
+     * @return word describing segment status (not yet used)
+     */
     public int get_Status() {
         return _Status;
     }
-
+    /**
+     * 
+     * @param _Status segment status word
+     */
     public void set_Status(int _Status) {
         this._Status = _Status;
     }
