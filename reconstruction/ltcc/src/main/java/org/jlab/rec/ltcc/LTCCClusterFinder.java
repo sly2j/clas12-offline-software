@@ -5,9 +5,9 @@
  */
 package org.jlab.rec.ltcc;
 
-import org.jlab.rec.ltcc.LTCCCluster;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.ListIterator;
 
 /**
@@ -24,10 +24,11 @@ public final class LTCCClusterFinder {
     // timing delta in [ns]
     static private final double DTIME_SEARCH = 50.;
     // note: good cluster requirements are defined in the LTCCCluster class
-    //       good hits are ensured by LTCCHit.loadHits()
+    //       good hits are ensured by OLDLTCCHit.loadHits()
     
-    static public List<LTCCCluster> findClusters(List<LTCCHit> hits) {
-        List<LTCCCluster> clusters = new ArrayList<>(10);
+    static public List<LTCCCluster> findClusters(List<LTCCHit> inHits) {
+        List<LTCCHit> hits = (LinkedList)((LinkedList)inHits).clone();
+        List<LTCCCluster> clusters = new ArrayList<>(Math.min(inHits.size(), 10));
         
         // sort the hits from highest to lowest nphe
         hits.sort((LTCCHit h1, LTCCHit h2) -> Double.compare(h2.getNphe(), h1.getNphe()));
@@ -36,14 +37,16 @@ public final class LTCCClusterFinder {
         // by reversing the arguments to the compare operations we get a descending list
         // ==> the first entry has the largest nphe
         
+        int clusterid = 0;
         while(!hits.isEmpty()) {
             LTCCHit center = findClusterCenter(hits);
             // no more good cluster centers available
             if (center == null) {
                 break;
             }
-            LTCCCluster cluster = growCluster(center, hits);
+            LTCCCluster cluster = growCluster(center, clusterid, hits);
             clusters.add(cluster);
+            clusterid += 1;
         }
         return clusters;
     }
@@ -59,8 +62,10 @@ public final class LTCCClusterFinder {
         
         return center;
     }
-    static private LTCCCluster growCluster(LTCCHit center, List<LTCCHit> hits){
-        LTCCCluster cluster = new LTCCCluster(center);
+    static private LTCCCluster growCluster(LTCCHit center, 
+                                           int clusterid, 
+                                           List<LTCCHit> hits) {
+        LTCCCluster cluster = new LTCCCluster(center, clusterid);
         ListIterator<LTCCHit> hitIt = hits.listIterator();
         while (hitIt.hasNext()){
             LTCCHit hit = hitIt.next();

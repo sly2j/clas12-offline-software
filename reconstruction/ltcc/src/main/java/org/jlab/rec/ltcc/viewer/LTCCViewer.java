@@ -33,10 +33,10 @@ public class LTCCViewer {
     
     public void process(DataEvent event) {
         if (event.hasBank("LTCC::adc")) {
-            LTCCHit.loadHits(event).forEach(hit -> process(hit));
+            LTCCHit.load(event).forEach(hit -> process(hit));
         }
         if (event.hasBank("LTCC::clusters")) {
-            LTCCCluster.loadClusters(event, true).forEach(cluster -> process(cluster));
+            LTCCCluster.load(event, true).forEach(cluster -> process(cluster));
         }
     }
 

@@ -20,7 +20,7 @@ import org.jMath.Vector.threeVec;
  * Note that the correction ultimately will depend on the torus and solenoid 
  * field settings.
  */
-public class LTCCClusterCorrection {
+public class LTCCPositionCorrection {
     /*
     * static member function calcPosition
         * arguments:

@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package org.jlab.rec.ltcc.viewer;
-import org.jlab.rec.ltcc.viewer.LTCCHistogrammer;
 import org.jlab.groot.data.H1F;
 import org.jlab.rec.ltcc.LTCCHit;
 
@@ -33,9 +32,9 @@ public class LTCCHitHistos extends LTCCHistogrammer<LTCCHit> {
         hadc.setFillColor(35);
         this.add(hadc, hit -> (double) hit.getADC());
         
-        H1F hrawTime = new H1F("rawTime", "rawTime [ns]", "#", 10, 0, 100);
+        H1F hrawTime = new H1F("tdc", "tdc [ns]", "#", 10, 0, 100);
         hrawTime.setFillColor(38);
-        this.add(hrawTime, hit -> (double) hit.getRawTime());
+        this.add(hrawTime, hit -> (double) hit.getTDC());
         
         H1F htime = new H1F("time", "time [ns]", "#", 10, 0, 100);
         htime.setFillColor(38);

@@ -22,7 +22,7 @@ import java.util.List;
  * LTCC hit info
  *
  */
-public final class LTCCHit {
+public final class OLDLTCCHit {
     // nphe requirements for a good hit
     static private final double NPHE_MIN_HIT = 0;
     static private final double NPHE_MAX_HIT = 10000.;
@@ -56,7 +56,7 @@ public final class LTCCHit {
     private final int iLTCCPhi;
 
     // load a list of all good hits
-    public static List<LTCCHit> loadHits(DataEvent event, ConstantsManager ccdb) {
+    public static List<OLDLTCCHit> loadHits(DataEvent event, ConstantsManager ccdb) {
         int run = -1;
         if (event.hasBank("RUN::config")) {
             DataBank header = event.getBank("RUN::config");
@@ -70,20 +70,20 @@ public final class LTCCHit {
         }
         DataBank bank = event.getBank("LTCC::adc");
         
-        List<LTCCHit> hits = new LinkedList<>();
+        List<OLDLTCCHit> hits = new LinkedList<>();
         for (int i = 0; i < bank.rows(); ++i) {
-            LTCCHit hit = new LTCCHit(bank, i, spe, timing_offset);
+            OLDLTCCHit hit = new OLDLTCCHit(bank, i, spe, timing_offset);
             if (hit.isGood()) {
                 hits.add(hit);
             }
         }
         return hits;
     }
-    public static List <LTCCHit> loadHits(DataEvent event) {
+    public static List <OLDLTCCHit> loadHits(DataEvent event) {
         return loadHits(event, null);
     }
     
-    LTCCHit(DataBank bank, 
+    OLDLTCCHit(DataBank bank, 
             int index, 
             IndexedTable spe, 
             IndexedTable timing_offset) {
@@ -98,7 +98,7 @@ public final class LTCCHit {
        this.iLTCCPhi = calcLTCCPhiIndex();
        this.status = calcStatus();
     }        
-    LTCCHit(DataBank bank, int index) {
+    OLDLTCCHit(DataBank bank, int index) {
         this(bank, index, null, null);
     }
    
@@ -161,12 +161,12 @@ public final class LTCCHit {
     // is this hit a neighbor within a theta and timing window? 
     // (phi is dealt with by enforcing that both hits were in the same
     //  sector)
-    public boolean isNeighbor(LTCCHit hit, int dThetaMax, double dTimeMax) {
+    public boolean isNeighbor(OLDLTCCHit hit, int dThetaMax, double dTimeMax) {
         int dTheta = Math.abs(this.segment - hit.segment);
         double dTime = Math.abs(this.time - hit.time);
         return (dTheta <= dThetaMax && this.sector == hit.sector && dTime <= dTimeMax);
     }
-    public boolean isNeighbor(LTCCHit hit, double dTimeMax) { 
+    public boolean isNeighbor(OLDLTCCHit hit, double dTimeMax) { 
         return isNeighbor(hit, 1, dTimeMax);
     }
     

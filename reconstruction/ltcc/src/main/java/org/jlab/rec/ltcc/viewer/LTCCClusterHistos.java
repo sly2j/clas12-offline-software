@@ -39,10 +39,7 @@ public class LTCCClusterHistos extends LTCCHistogrammer<LTCCCluster> {
         
         H1F hphi = new H1F("phi", "phi [deg]", "#", 360, 0, 360);
         hphi.setFillColor(38);
-        this.add(hphi, cluster -> {
-            double phi = Math.toDegrees(cluster.getPosition().phi());
-            return (phi > 0 ? phi : 360 + phi);
-        });
+        this.add(hphi, cluster -> Math.toDegrees(cluster.getPosition().phi()));
         
         H1F hnHits = new H1F("nHits", "nHits", "#", 10, 0, 10);
         hnHits.setFillColor(35);
