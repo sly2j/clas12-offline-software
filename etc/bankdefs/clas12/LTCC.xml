@@ -39,22 +39,47 @@
 	    <column name="hitn"    num = "99"  type = "int32"  info = "number of hits"/>
 	  </section>
 	</bank>
+	<bank name="LTCC" tag="1420" info="Calibrated LTCC hits">
+	  <section name="hits" tag="1421" num="0" info="Calibrated LTCC hits">
+	    <column name="id"        num="1"  type="int16"   info="id of the cluster"/>
+	    <column name="status"    num="2"  type="int8"    info="Status code, bad: -1, orphan: 0, cluster center: 1, cluster periphery: 2, cluster out-of-time: 3"/>
+	    <column name="sector"    num="3"  type="int8"    info="sector of LTCC (1 to 6)"/>
+	    <column name="side"      num="4"  type="int8"    info="LTCC side (left: 1, right: 2)"/>
+	    <column name="segment"   num="5"  type="int16"   info="LTCC segment (1 to 18)"/>
+	    <column name="clusterid" num="6"  type="int16"   info="id of the cluster this hit belongs to, -1 if orphaned"/>
+	    <column name="ped"       num="7"  type="int16"   info="Pedestal from LTCC::adc"/>
+	    <column name="ADC"       num="8"  type="int32"   info="integrated ADC from LTCC::adc"/>
+	    <column name="TDC"       num="9"  type="int32"   info="TDC from LTCC::tdc"/>
+	    <column name="time"      num="10" type="float"   info="Hit time"/>
+	    <column name="nphe"      num="11" type="float"   info="Number of photo-electrons"/>
+      <column name="spe_mean"  num="12" type="float"   info="Mean from CCDB (/calibration/ltcc/spe)"/>
+      <column name="spe_sigma" num="13" type="float"   info="Sigma from CCDB (/calibration/ltcc/spe)"/>
+	    <column name="hv"        num="14" type="float"   info="HV setting from CCDB (currently unused)"/>
+	    <column name="tet"       num="15" type="float"   info="Threshold setting from CCDB (currently unused)"/>
+	  </section>
+	</bank>
 	<bank name="LTCC" tag="1410" info="reconstructed clusters from the LTCC">
 	  <section name="clusters" tag="1411" num="0" info="LTCC reconstructed clusters">
 	    <column name="id"       num="1"  type="int16"   info="id of the cluster"/>
 	    <column name="status"   num="2"  type="int8"    info="good (1) or bad (0)"/>
 	    <column name="sector"   num="3"  type="int8"    info="sector of LTCC"/>
 	    <column name="segment"  num="4"  type="int16"   info="weighted central cluster segment"/>
-      <column name="x"        num="5"  type="float"   info="crude cluster x (cm)"/>
-      <column name="y"        num="6"  type="float"   info="crude cluster y (cm)"/>
-      <column name="z"        num="7"  type="float"   info="crude cluster z (cm)"/>
-	    <column name="nphe"     num="8"  type="float"   info="number of photo-electrons"/>
-	    <column name="time"     num="9"  type="float"   info="cluster time"/>
-	    <column name="nHits"    num="10" type="in16"   info="number of hits in this cluster"/>
-	    <column name="minTheta" num="11" type="float"   info="minimum theta angle (deg)"/>
-	    <column name="maxTheta" num="12" type="float"   info="maximum theta angle (deg)"/>
-	    <column name="minPhi"   num="13" type="float"   info="minimum phi angle (deg)"/>
-	    <column name="maxPhi"   num="14" type="float"   info="maximum phi angle (deg)"/>
+	    <column name="trackid"  num="5"  type="int16"   info="id of the corresponding track"/>
+	    <column name="nhits"    num="6"  type="int16"   info="number of hits in the cluster"/>
+	    <column name="intime_nhits" num="7"  type="int16"   info="Number of hits in the cluster with a tight timing cut"/>
+	    <column name="time"     num="8"  type="float"   info="cluster time"/>
+	    <column name="nphe"     num="9"  type="float"   info="Number of photo-electrons"/>
+	    <column name="intime_nphe"  num="10"  type="float"   info="number of photo-electrons with a tight timing cut"/>
+      <column name="x"        num="11"  type="float"   info="Cluster position (cm)"/>
+      <column name="y"        num="12"  type="float"   info="Cluster position (cm)"/>
+      <column name="z"        num="13"  type="float"   info="Cluster position (cm)"/>
+      <column name="raw_x"    num="14"  type="float"   info="Elliptical mirror center associated with the weighted central PMT"/>
+      <column name="raw_y"    num="15"  type="float"   info="Elliptical mirror center associated with the weighted central PMT"/>
+      <column name="raw_z"    num="16"  type="float"   info="Elliptical mirror center associated with the weighted central PMT"/>
+	    <column name="dtheta"   num="17"  type="float"   info="Cluster halo in theta"/>
+	    <column name="dphi"     num="18"  type="float"   info="Cluster halo in phi"/>
+	    <column name="raw_hits_left"  num="19" type="int64"   info="Stores the active PMTs on the left side"/>
+	    <column name="raw_hits_right" num="20" type="int64"   info="Stores the active PMTs on the right side"/>
 	  </section>
 	</bank>
 </evio_dictionary>

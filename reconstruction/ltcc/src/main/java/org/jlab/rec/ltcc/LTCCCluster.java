@@ -178,10 +178,10 @@ public final class LTCCCluster {
         bank.setFloat("intime_nphe", index, (float) getNpheInTime());
         bank.setFloat("x", index, (float) xyz.x());
         bank.setFloat("y", index, (float) xyz.y());
-        bank.setFloat("z", index, (float) xyz.z());   
-        bank.setFloat("raw_x", index, (float) xyz.x());
-        bank.setFloat("raw_y", index, (float) xyz.y());
-        bank.setFloat("raw_z", index, (float) xyz.z());
+        bank.setFloat("z", index, (float) xyz.z());
+        bank.setFloat("raw_x", index, (float)xyzRaw.x());
+        bank.setFloat("raw_y", index, (float)xyzRaw.y());
+        bank.setFloat("raw_z", index, (float)xyzRaw.z());
         bank.setFloat("dtheta", index, (float) getDtheta());
         bank.setFloat("dphe", index, (float) getDphi());
         bank.setLong("raw_hits_left", index, this.rawHitsLeft);
