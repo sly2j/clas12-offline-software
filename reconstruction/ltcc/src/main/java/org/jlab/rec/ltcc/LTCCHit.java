@@ -91,7 +91,7 @@ public class LTCCHit {
     
     /* Hit position */
     private final int sector;       // LTCC sector
-    private final int side;         // LTCC side (1: left, 2: right)
+    private final int side;         // LTCC side (0: left, 1: right)
     private final int segment;      // LTCC segment (1 -> 18)
     
     /* raw info from RawLTCCHit */
@@ -222,7 +222,7 @@ public class LTCCHit {
             IndexedTable speDB,
             IndexedTable timingDB) {
         this.sector = raw.getSector();
-        this.side = raw.getOrder() + 1;
+        this.side = raw.getOrder();
         this.segment = raw.getComponent();
         this.ADC = raw.getADC();
         this.ped = raw.getPed();
@@ -375,7 +375,7 @@ public class LTCCHit {
      * @return 
      */
     public boolean isLeft() {
-        return (this.side == 1);
+        return (this.side == 0);
     }
     /**
      * 
@@ -397,7 +397,7 @@ public class LTCCHit {
      */
     public Vector3D getPosition() {
         double phi = Math.toRadians(PHI0[this.segment - 1] 
-                * (this.side == 1 ? -1 : 1))
+                * (this.side == 0 ? -1 : 1))
                 + 2. * Math.PI * (this.sector - 1) / 6.;
         Vector3D v = Vector3D.fromSpherical(
                 RHO0[this.segment - 1], 

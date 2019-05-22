@@ -44,7 +44,7 @@
 	    <column name="id"        num="1"  type="int16"   info="id of the cluster"/>
 	    <column name="status"    num="2"  type="int8"    info="Status code, bad: -1, orphan: 0, cluster center: 1, cluster periphery: 2, cluster out-of-time: 3"/>
 	    <column name="sector"    num="3"  type="int8"    info="sector of LTCC (1 to 6)"/>
-	    <column name="side"      num="4"  type="int8"    info="LTCC side (left: 1, right: 2)"/>
+	    <column name="side"      num="4"  type="int8"    info="LTCC side (left: 0, right: 1)"/>
 	    <column name="segment"   num="5"  type="int16"   info="LTCC segment (1 to 18)"/>
 	    <column name="clusterid" num="6"  type="int16"   info="id of the cluster this hit belongs to, -1 if orphaned"/>
 	    <column name="ped"       num="7"  type="int16"   info="Pedestal from LTCC::adc"/>

@@ -7,7 +7,7 @@
        {"name":"id",          "id":1,   "type":"int16", "info":"id of the hit"},
        {"name":"status",      "id":2,   "type":"int8",  "info":"Status code, bad: -1, orphan: 0, cluster center: 1, cluster periphery: 2, cluster out-of-time: 3"},
        {"name":"sector",      "id":3,   "type":"int8",  "info":"LTCC sector (1 to 6)"},
-       {"name":"side",        "id":4,   "type":"int8",  "info":"LTCC side (left: 1, right: 2)"},
+       {"name":"side",        "id":4,   "type":"int8",  "info":"LTCC side (left: 0, right: 1)"},
        {"name":"segment",     "id":5,   "type":"int16", "info":"LTCC segment (1 to 18)"},
        {"name":"clusterid",   "id":6,   "type":"int16", "info":"id of the cluster this hit belongs to, -1 for orphans"},
        {"name":"ped",         "id":7,   "type":"int16", "info":"Pedestal from LTCC::adc"},
